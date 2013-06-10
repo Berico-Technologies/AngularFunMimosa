@@ -1,5 +1,6 @@
 express = require 'express'
 engines = require 'consolidate'
+_       = require 'lodash'
 
 exports.startServer = (config, callback) ->
 
@@ -7,6 +8,11 @@ exports.startServer = (config, callback) ->
   people = [
     {"id": "#{nextId++}", "name": "Saasha", "age": "5"}
     {"id": "#{nextId++}", "name": "Planet", "age": "7"}
+  ]
+  
+  examples = [
+    { "id": "1", "desc": "First Example"  }
+    { "id": "2", "desc": "Second Example" }
   ]
 
   isUniqueName = (name) ->
@@ -55,5 +61,66 @@ exports.startServer = (config, callback) ->
     id = req.params.id
     current = person for person in people when parseInt(person.id, 10) is parseInt(id, 10)
     res.json current
+  
+  getExampleById = (id) ->
+    _.find examples, (example) -> example.id is id
+      
+  addExample = (example) -> 
+    examples.push example
+    
+  updateExample = (id, desc) ->
+    example = _.filter examples, (example) -> example.id is id
+    if example[0]?
+      example[0].desc = desc
+      true
+    else
+      false
+      
+  deleteExample = (id) ->
+    len = examples.length
+    examples = _.reject examples, (example) -> example.id is id
+    len > examples.length
+  
+  app.get "/examples", (req, res) -> res.json examples
+  
+  app.get "/examples/:id", (req, res) -> 
+    console.log "Retrieving example with id: #{req.params.id}"
+    example = getExampleById req.params.id
+    if example?
+      res.json example
+    else
+      res.send "Example with id #{req.params.id} does not exist.", 404
+  
+  app.put "/examples/", (req, res) ->
+    console.log "Create example with id: #{req.params.id}"
+    if req.body.id? and req.body.desc?
+      addExample req.body
+      res.send "Success", 201
+    else
+      res.send "Invalid example object", 400
+      
+  app.put "/examples/:id", (req, res) ->
+    console.log "Creating example with id: #{req.params.id}"
+    if req.params.id? and req.body.desc?
+      addExample { id: req.params.id, desc: req.body.desc }
+      res.send "Success", 201
+    else
+      res.send "Invalid example object", 400
+  
+  app.post "/examples/:id", (req, res) ->
+    console.log "Updating example with id: #{req.params.id}"
+    success = updateExample req.params.id, req.body.desc
+    if success
+      res.send "Success", 200
+    else
+      res.send "Failed to update object; didn't exist.", 404 
+      
+  app.delete "/examples/:id", (req, res) ->
+    console.log "Deleting example with id: #{req.params.id}"
+    success = deleteExample req.params.id
+    if success
+      res.send "Success", 200
+    else
+      res.send "Failed to delete object; didn't exist.", 404
 
   callback server

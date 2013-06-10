@@ -12,6 +12,7 @@ requirejs.config
   paths:
     c:"controllers"
     d:"directives"
+    s:"services"
     l18n:"vendor/l18n"
     jquery:"vendor/jquery"
     ang:"vendor/angular"
@@ -43,6 +44,7 @@ requirejs ['app'
     'd/tab'
     'd/tabs'
     'filters/twitterfy'
+    's/example-repo'
     'ang'
     'responseInterceptors/dispatcher'
 ], (app, $) ->
@@ -77,7 +79,7 @@ requirejs ['app'
     # This is where we actually register the init function
     # for routes.
     app.config ['$routeProvider', rp]
-    
+    app.run ['exampleRepo', (er) -> window.er = er ]
     # Here we are binding handlers to "global" events that
     # we will fire using Angular's PubSub mechanism.
     app.run ['$rootScope', '$log', ($rootScope, $log) ->

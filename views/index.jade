@@ -51,6 +51,8 @@ html(lang="en")
 
             tab(data-tab-id='gitHub', caption='GitHub')
               section(ng-controller='gitHub')
+                p(ng-repeat="ex in exs") {{ex.desc}}
+                p {{exs.desc}}
                 .alert.alert-info(ng-show='!searchTerm.length')
                   h4.alert-heading Heads up!
                   span Enter GitHub search criteria.
